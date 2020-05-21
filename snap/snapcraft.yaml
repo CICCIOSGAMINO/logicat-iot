@@ -26,8 +26,8 @@ apps:
   # node logicat-iot service 
   node-service:
     command: logicat-iot 
-    # daemon: simple
-    # restart-condition: always
+    daemon: simple
+    restart-condition: always
     plugs: [home,network,network-bind]
   # redis service 
   redis-server:

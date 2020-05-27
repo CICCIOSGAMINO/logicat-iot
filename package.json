@@ -2,7 +2,6 @@
   "name": "logicat-iot",
   "version": "1.0.0",
   "description": "Logicat srl IoT Gateway based on Ubuntu Core & Node.js! (Beta)",
-  "main": "index.js",
   "author": "@cicciosgamino",
   "license": "ISC",
   "private": true,

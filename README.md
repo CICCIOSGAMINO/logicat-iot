@@ -73,3 +73,5 @@ The fields PLC, Robots, Sensors and all other TCP comm can ship data to iot gate
 + id field, a valid sending device id
 + t field, in each message the t field needed (empty string or valid timestamp)
 
+## TODO 
+

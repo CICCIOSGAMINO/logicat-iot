@@ -299,6 +299,9 @@ const initPubSub = async () => {
           {"id":"0", "t":${Math.floor(Date.now() / 1000)}, "msg": "topic:${formattedTopic}"}
       `)
     })
+    .catch(err => {
+      log(`@ERROR (PUBSUB) Init Service: ${err}`)
+    })
 }
 
 /**
@@ -545,3 +548,22 @@ const log = (msg, severity = 0) => {
   });
 
  });    // End server.connection 
+
+
+// ------------------------------------------ Main Process ----------------------------------------
+// Main process handling and uncaught exceptions (all exceptions that are not handled in the code )
+
+// warnings 
+process.on('warning', (warning) => {
+  log(`@WARNING (Process): ${warning.name} - ${warning.message}`, 1)
+})
+
+// emitted whenever a Promise is rejected and no errors handler is attached 
+process.on('unhandledRejection', (reason, promise) => {
+  log(`@UNHANDLED (Rejection): ${promise} - ${reason}`, 2)
+})
+
+// event is emitted before an 'uncaughtException'
+process.on('uncaughtException', (err, origin) => {
+  log(`@UNCAUGH (Exception): ${origin} - ${err}`, 2)
+})

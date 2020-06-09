@@ -296,7 +296,7 @@ const initPubSub = async () => {
 
       // Send Msg every time PubSub settings change 
       publishBatchedMessages(`
-          {"id":"0", "t":${Math.floor(Date.now() / 1000)}, "msg": "topic:${formattedTopic}"}
+          {"id":"${deviceId}", "t":${Math.floor(Date.now() / 1000)}, "msg": "topic:${formattedTopic}"}
       `)
     })
     .catch(err => {
@@ -476,7 +476,7 @@ const log = (msg, severity = 0) => {
         } else {
           // not correct id of one item
           socket.write("0")
-          log(`@ERRORNot correct id of one iot item`, 1)
+          log(`@ERROR Not correct id of one iot item`, 1)
         }
       } 
       
@@ -502,12 +502,12 @@ const log = (msg, severity = 0) => {
           .then(responses => {
             // OK
             socket.write("1")
-            log(`@MSGS (MULTY): ${responses}`)
+            log(`@REDIS (MULTY): ${responses}`)
           })
           .catch(err => {
             // ERR
             socket.write("0")
-            log(`@ERROR (MULTY): ${err}`, 1)
+            log(`@ERROR (REDIS): ${err}`, 1)
           })
 
         } else {
@@ -539,15 +539,15 @@ const log = (msg, severity = 0) => {
   // Client request to END the TCP connection, server END the connection 
   socket.on('end', () => {
     console.log(`@SOCKET (END): ${socket.remoteAddress}:${socket.remotePort}`);
-  });
+  })
 
   // Don't forget to catch error, for your own sake.
   socket.on('error', (err) => {
     // ERROR on Socket - CONSOLE 
     log(`@ERROR (SOCKET): ${err}`, 1)
-  });
+  })
 
- });    // End server.connection 
+ })    // End server.connection 
 
 
 // ------------------------------------------ Main Process ----------------------------------------

@@ -157,7 +157,7 @@ const addItemToZsetWithWindow = (msg, zset, maxWindow) => {
   return new Promise((resolve, reject) => {
     _remInWindow(zset, 1, maxWindow)
     .then(result => {
-      return redis.zadd(zset, t, msg)
+      return redis.zadd(zset, t, `${t} ${msg}`)
     })
     .then(result => {
       resolve(result)

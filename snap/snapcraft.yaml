@@ -6,7 +6,7 @@ architectures:
     run-on:  amd64
   - build-on: armhf
     run-on: armhf
-version: '1.0.7'
+version: '1.0.8'
 summary: Logicatsrl IoT gateway, drive the data to the GCP infrasctucture. # 79 char long summary
 description: |
   (Private snap actually in beta version) This is the Logicat srl IoT 
@@ -29,7 +29,7 @@ apps:
     daemon: simple
     restart-condition: always
     restart-delay: 10s
-    plugs: [home,network,network-bind]
+    plugs: [network,network-bind]
   # redis service 
   redis-server:
     command: redis-server $SNAP/config/redis/redis.conf

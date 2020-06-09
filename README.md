@@ -2,13 +2,7 @@ GW Logicat
 ==========
 [TOC]
 
-<!-- ## Unreleased -->
-<!-- Add new, unreleased items here. -->
-## v1.0.1 [21-05-2020]
-  - First release - v1.0.0 logicat-iot first release 
-
-## v0.1.0 [25-03-2020]
-  - Beta
+## CHANGELOG
 
 ## Intro 
 Main doc about **logicat-iot** project. This is an iot gateway developeded (v1.0.0 on 20/05/2020) on snap, node.js v13.14.0 where data are gather from the field and sent to GCP ecosystem. Firebase real-time database, Firestore, GCP Pub/Sub pattern, GCP Cloud Functions, BigQuery are involved! Iot device can handle the device data and the field data into separate cloud connections with two different security cahnnels one fot the device status and configuration and the other for client's data. 
@@ -46,12 +40,13 @@ Of course you need to make the env variable PERSISTENT, so create the right file
 
 ```bash
 # google_application_credentials.sh  file  /etc/profile.d 
-export GOOGLE_APPLICATION_CREDENTIALS="/home/myhome/Keys/keys.json"
-```
+export GOOGLE_APPLICATION_CREDENTIALS="/var/snap/<snap>/common/keys.json"
 
-And load the new env variable without re-loggin: 
+# ubuntu core /etc/environment 
+sudo vi /etc/environment 
+# GOOGLE_APPLICATION_CREDENTIALS="/var/snap/<snap>/common/keys.json"
 
-```bash
+# load the new env variable without re-loggin: 
 source /etc/profile.d/google_application_credentials.sh
 ``` 
 

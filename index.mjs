@@ -83,22 +83,29 @@ connectionEmitter.on('connected', (data) => {
   redisCountIotItems()
   .then(count => {
     // if no iot items to push return 
-    if(count < 1) return  
-    redisGetIotBatchItems(100)
-    .then(items => {
-      // publish the messages 
-      publishBatchedMessages(items)
-      .then(() => 'ok')
+    if(count > 0) {
+      
+      redisGetIotBatchItems(100)
+      .then(items => {
+        items.forEach(i => {
+          // console.log(`@I (${typeof i}): ${i}`)
+          // publish the messages 
+          publishBatchedMessages(i)
+          .then(messageId => {
+            log(`@MSG (Published): ${messageId}`)
+          })
+          .catch(err => {
+            // ERROR in Publish - CONSOLE
+            log(`@ERROR (PUB-ITEM): ${err}`)
+          })
+        })
+      })
+      // catch on redisCountIotItems
       .catch(err => {
-        // ERROR in Publish - CONSOLE
-        log(`@ERROR (PUB-ITEM): ${err}`)
+        console.log(`@ERROR (REDIS_ITEMS) Get IoT items: ${err}`)
       })
 
-    })
-    // catch on redisCountIotItems
-    .catch(err => {
-      console.log(`@ERROR (REDIS_ITEMS) Get IoT items: ${err}`)
-    })
+    } // end if count > 0 
 
   })
   .catch(err => {
@@ -306,7 +313,9 @@ const initPubSub = async () => {
     // Every time initPubSub send this formatted service message 
     publishBatchedMessages(`
         {"id":"${deviceId.replace('-','_')}", "t":${Math.floor(Date.now() / 1000)}, "msg": "topic:${formattedTopic}"}
-    `)
+    `).then(messageId => {
+      log(`@MSG (Published): ${messageId}`)
+    })
   })
   .catch(err => {
     log(`@ERROR (PubSub): Init Service: ${err}`, 1)
@@ -365,13 +374,9 @@ const publishWithRetrySettings = async (msg) => {
  * 
  * @param {String} msg - JSON formatted message to Publish or [{...}, {...}, ...] for messages
  */
-const publishBatchedMessages = async (msg) => {
-  const dataBuffer = Buffer.from(msg)
-
-  const messageId = await batchPublisher.publish(dataBuffer);
-  // const messageId = await batchPublisher.publishJSON(dataBuffer);
-  log(`@MSG (Published): ${messageId}`)
-
+const publishBatchedMessages = (msg) => {
+  const dataBuffer = Buffer.from(`${msg}`)
+  return batchPublisher.publish(dataBuffer);
 }
 
 // ----------------------------------------------- Log --------------------------------------------

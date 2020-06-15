@@ -2,6 +2,8 @@
 
 <!-- ## Unreleased -->
 <!-- Add new, unreleased items here. -->
+## v1.2.0 [15-06-2020]
+  - Fix the publishBatchedMessages
 
 ## v1.1.0 [12-06-2020]
   - Redis v6.0.5

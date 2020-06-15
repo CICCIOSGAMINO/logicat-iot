@@ -70,46 +70,47 @@ let devicesIds = DEFAULT_DEVICES_IDS
 
 connectionEmitter.on('connected', (data) => {
   // Timing + Connection OK 
-  // TODO 
-  log(`@SCHEDULED ONLINE ${data.interval}sec`)
-  // Try to Firebase Auth 
-  if(fireUser === undefined) {
-    // tyr to login 
-    fireLogin(email, passw)
-  } else {
-    // logged, push items of zero is returned  
-    redisCountIotItems()
-    .then(count => {
-      if(count < 1) return 
-      // return the items 
-      redisGetIotBatchItems(100)
-      .then(items => {
-        // Array of items push all togheter or forEach them 
-        // if (Array.isArray(items)) {
-        publishBatchedMessages(items)
-        .then(() => 'ok')
-        .catch(err => {
-          // ERROR in Publish - CONSOLE
-          log(`@ERROR (PUB-ITEM): ${err}`)
-        })
+  log(`@SCHEDULED (Online): ${data.interval}sec`)
 
-      })
-      // catch on redisCountIotItems
+  // Init services 
+  initPubSub()
+  fireLogin()
+
+  // check Firebase Auth and PubSub 
+  if(fireUser !== undefined && batchPublisher !== undefined) {
+
+  // logged, push items of zero is returned  
+  redisCountIotItems()
+  .then(count => {
+    // if no iot items to push return 
+    if(count < 1) return  
+    redisGetIotBatchItems(100)
+    .then(items => {
+      // publish the messages 
+      publishBatchedMessages(items)
+      .then(() => 'ok')
       .catch(err => {
-        console.log(`@ERR: ${err}`)
+        // ERROR in Publish - CONSOLE
+        log(`@ERROR (PUB-ITEM): ${err}`)
       })
 
     })
+    // catch on redisCountIotItems
     .catch(err => {
-
+      console.log(`@ERROR (REDIS_ITEMS) Get IoT items: ${err}`)
     })
 
-  }
+  })
+  .catch(err => {
+    log(`@ERROR (REDIS_COUNT) Count Iot items: ${err}`)
+  })
+
+  } 
 
 })
 connectionEmitter.on('disconnected', (data) => {
   // Timing but NOT Online 
-  log(`@SCHEDULED OFFLINE ${data.interval}sec`)
+  log(`@SCHEDULED (Offline): ${data.interval}sec`)
 })
 
 // If Offline && Configuration present active LOCAL TCP services
@@ -135,7 +136,7 @@ isInternetAvailable()
     startConnectionChecking(interval)
   })
   .catch(err => {
-    log(`@ERROR - REDIS - Offline COnfigurations`)
+    log(`@ERROR (Redis): Offline Configurations ${err}`)
   }) // End Catch Redis Conf 
 })  // End Catch isInternetAvailable 
 
@@ -165,10 +166,15 @@ const errorRef = db.ref(`/devices/${deviceId}/errors`)
  * 
  */
 const fireLogin = (email, passw) => {
+
+  // check auth 
+  if(fireUser !== undefined) return 
+
+  // auth in firebase 
   auth.signInWithEmailAndPassword(email, passw)
   .catch(err => {
     // ERROR in LOGIN - CONSOLE 
-    log(`@ERROR (FIREBASE_AUTH): ${err.message}`, 1)
+    log(`@ERROR (Firebase_Auth): ${err.message}`, 1)
   })
 }
 
@@ -177,7 +183,7 @@ auth.onAuthStateChanged(user => {
   if(user) {
     // LOGGED - CONSOLE 
     fireUser = user.uid
-    log(`@USER: ${ user.uid }`)
+    log(`@USER (Logged): ${ user.uid }`)
 
     startStatusListening()
     startListenerConfig()
@@ -207,7 +213,7 @@ const startListenerConfig = () => {
       devicesIds = configObj.ids || DEFAULT_DEVICES_IDS
 
       formattedTopic = configObj.topic || ""
-      log(`@MSG (CONFIG): Port: ${port} Interval: ${interval} Topic: ${formattedTopic} `)
+      log(`@MSG (Config): Port: ${port} Interval: ${interval} Topic: ${formattedTopic} `)
       
       // Init the Timing 
       startConnectionChecking(interval)
@@ -216,19 +222,19 @@ const startListenerConfig = () => {
       initPubSub()
       .catch(error => {
         // ERROR initPubSub - CONSOLE 
-        log(`@ERROR (PUBSUB_INIT): ${error}`, 2)
+        log(`@ERROR (PubSub Init): ${error}`, 2)
       });
       // Init the TCP Server 
       initTCPServer(port)
       .catch(error => {
         // ERROR initTCPServer - CONSOLE 
-        log(`@ERROR (TCP_INIT): ${error}`, 2)
+        log(`@ERROR (TCP Init): ${error}`, 2)
       })
 
     })
     .catch(err => {
       // catch the JSON.parse or Redis get exceptions 
-      log(`@ERROR (JSON_PARSER or REDIS EXC): ${err}`, 2)
+      log(`@ERROR (JSON Parser or Redis Exec): ${err}`, 2)
     })
   }
 
@@ -236,7 +242,7 @@ const startListenerConfig = () => {
     // ERROR in CONFIG - CONSOLE 
     // 1) Bad DEVICE_SERIAL 
     // 2) No Connection 
-    log(`@ERROR (FIREBASE_CONF): ${error}`, 2)
+    log(`@ERROR (Firebase_Conf): ${error}`, 2)
   }
 
   refConfig.on('value',configChanged, errorConfig)
@@ -279,29 +285,32 @@ const startStatusListening = () => {
   */
 const initPubSub = async () => {
 
-    // Init the Google PubSub service and test topic permission 
-    const pushMsgPermission = ['pubsub.topics.publish']
-    pubSubClient
-    .topic(formattedTopic)
-    .iam.testPermissions(pushMsgPermission)
-    .then(p => {
-      // Permission OK (can push on this topic )
-      // Init the batchPublisher 
-      batchPublisher = pubSubClient.topic(formattedTopic, {
-        batching: {
-          maxMessages: maxMessages,
-          maxMilliseconds: maxWaitTime * 1000
-        }
-      })
+  // check the publisher 
+  if(batchPublisher !== undefined) return
 
-      // Send Msg every time PubSub settings change 
-      publishBatchedMessages(`
-          {"id":"${deviceId}", "t":${Math.floor(Date.now() / 1000)}, "msg": "topic:${formattedTopic}"}
-      `)
+  // Init the Google PubSub service and test topic permission 
+  const pushMsgPermission = ['pubsub.topics.publish']
+  pubSubClient
+  .topic(formattedTopic)
+  .iam.testPermissions(pushMsgPermission)
+  .then(p => {
+    // Permission OK (can push on this topic )
+    // Init the batchPublisher 
+    batchPublisher = pubSubClient.topic(formattedTopic, {
+      batching: {
+        maxMessages: maxMessages,
+        maxMilliseconds: maxWaitTime * 1000
+      }
     })
-    .catch(err => {
-      log(`@ERROR (PUBSUB) Init Service: ${err}`)
-    })
+
+    // Every time initPubSub send this formatted service message 
+    publishBatchedMessages(`
+        {"id":"${deviceId.replace('-','_')}", "t":${Math.floor(Date.now() / 1000)}, "msg": "topic:${formattedTopic}"}
+    `)
+  })
+  .catch(err => {
+    log(`@ERROR (PubSub): Init Service: ${err}`, 1)
+  })
 }
 
 /**
@@ -347,7 +356,7 @@ const publishWithRetrySettings = async (msg) => {
       retry: retrySettings,
     })
 
-  log(`@MSG (PUB): ${response.messageIds}`)
+  log(`@MSG (Published): ${response.messageIds}`)
 
 }
 
@@ -361,7 +370,7 @@ const publishBatchedMessages = async (msg) => {
 
   const messageId = await batchPublisher.publish(dataBuffer);
   // const messageId = await batchPublisher.publishJSON(dataBuffer);
-  log(`@MSG (PUB): ${messageId}`)
+  log(`@MSG (Published): ${messageId}`)
 
 }
 
@@ -384,7 +393,7 @@ const log = (msg, severity = 0) => {
       redisAddLog(msg)
       .then(_ => 'ok')
       .catch(err => {
-        console.log(`@ERROR (REDIS) Writing Log: ${err}`)
+        console.log(`@ERROR (Redis) Writing Log: ${err}`)
       })
       break
     // 1 console & redis error log 
@@ -394,7 +403,7 @@ const log = (msg, severity = 0) => {
       redisAddErr(msg)
       .then(_ => 'ok')
       .catch(err => {
-        console.log(`@ERROR (REDIS) Writing Err: ${err}`)
+        console.log(`@ERROR (Redis) Writing Err: ${err}`)
       })
       break
     // 2 console & redis error log & firebase error log 
@@ -404,7 +413,7 @@ const log = (msg, severity = 0) => {
       redisAddErr(msg)
       .then(_ => 'ok')
       .catch(err => {
-        console.log(`@ERROR (REDIS) Writing Err: ${err}`)
+        console.log(`@ERROR (Redis) Writing Err: ${err}`)
       })
       // write in firebase error  
       errorRef.set({
@@ -412,7 +421,7 @@ const log = (msg, severity = 0) => {
         error: msg
       })
       .catch(err => {
-        console.log(`@ERROR (FIREBASE) Writing Err: ${err}`)
+        console.log(`@ERROR (Firebase) Writing Err: ${err}`)
       })
       break
   }
@@ -502,18 +511,18 @@ const log = (msg, severity = 0) => {
           .then(responses => {
             // OK
             socket.write("1")
-            log(`@REDIS (MULTY): ${responses}`)
+            log(`@REDIS (Multy Insert): ${responses}`)
           })
           .catch(err => {
             // ERR
             socket.write("0")
-            log(`@ERROR (REDIS): ${err}`, 1)
+            log(`@ERROR (Redis): ${err}`, 1)
           })
 
         } else {
           // not correct id of one item
           socket.write("0")
-          log(`@ERROR (MULTY_IDS): Not correct id of one iot item`, 1)
+          log(`@ERROR (Multy ids): Not correct id of one iot item`, 1)
         }
 
       } 
@@ -521,30 +530,30 @@ const log = (msg, severity = 0) => {
     } catch(e) {
       // ERROR in JSON parsing - CONSOLE 
       socket.write("0")
-      log(`@ERROR (JSON_PARSING): ${e}`, 2)
+      log(`@ERROR (JSON Parsing): ${e}`, 2)
     }
 
    })   // End Socket.on('data', chunck => .... )
 
   // Connection 
   socket.on('connect', () => {
-    console.log(`@SOCKET (CONNECT): ${socket.remoteAddress}:${socket.remotePort}`)
+    console.log(`@SOCKET (Connect): ${socket.remoteAddress}:${socket.remotePort}`)
   })
 
   // Close 
   socket.on('close', () => {
-    console.log(`@SOCKET (CLOSE): ${socket.remoteAddress}:${socket.remotePort}`)
+    console.log(`@SOCKET (Close): ${socket.remoteAddress}:${socket.remotePort}`)
   })
 
   // Client request to END the TCP connection, server END the connection 
   socket.on('end', () => {
-    console.log(`@SOCKET (END): ${socket.remoteAddress}:${socket.remotePort}`);
+    console.log(`@SOCKET (End): ${socket.remoteAddress}:${socket.remotePort}`);
   })
 
   // Don't forget to catch error, for your own sake.
   socket.on('error', (err) => {
     // ERROR on Socket - CONSOLE 
-    log(`@ERROR (SOCKET): ${err}`, 1)
+    log(`@ERROR (Socket): ${err}`, 1)
   })
 
  })    // End server.connection 

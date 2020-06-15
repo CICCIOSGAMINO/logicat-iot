@@ -6,7 +6,7 @@ architectures:
     run-on:  amd64
   - build-on: armhf
     run-on: armhf
-version: '1.0.8'
+version: '1.1.0'
 summary: Logicatsrl IoT gateway, drive the data to the GCP infrasctucture. # 79 char long summary
 description: |
   (Private snap actually in beta version) This is the Logicat srl IoT 
@@ -62,7 +62,7 @@ parts:
   redis:
     plugin: make
     source: https://github.com/antirez/redis.git
-    source-tag: '5.0.8'
+    source-tag: '6.0.5'
     build-packages:
       - build-essential
     make-install-var: 'PREFIX'

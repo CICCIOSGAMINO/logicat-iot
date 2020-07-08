@@ -2,6 +2,9 @@
 
 <!-- ## Unreleased -->
 <!-- Add new, unreleased items here. -->
+## v1.3.0 [08-07-2020]
+  - Fix the table.serial-id - to _ pattern 
+
 ## v1.2.0 [15-06-2020]
   - Fix the publishBatchedMessages
 

@@ -68,5 +68,16 @@ The fields PLC, Robots, Sensors and all other TCP comm can ship data to iot gate
 + id field, a valid sending device id
 + t field, in each message the t field needed (empty string or valid timestamp)
 
+## initPubSub 
+Every time the communication with the Pub/Sub service is activated a message is sent, this message is published to Pub/Sub topic, ready to be insert into serial id events table: 
+
+```javascript
+{"id":"${deviceId.replace(/-/g,'_')}", "t":${Math.floor(Date.now() / 1000)}, "msg": "topic:${formattedTopic}"}
+```
+
+Table eg. 
+
+project-id.table-id.serial-id_a40f_4x44_..... 
+
 ## TODO 
 

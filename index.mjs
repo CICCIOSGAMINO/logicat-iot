@@ -74,7 +74,7 @@ connectionEmitter.on('connected', (data) => {
 
   // Init services 
   initPubSub()
-  fireLogin()
+  fireLogin(email, passw)
 
   // check Firebase Auth and PubSub 
   if(fireUser !== undefined && batchPublisher !== undefined) {
@@ -310,12 +310,13 @@ const initPubSub = async () => {
       }
     })
 
-    // Every time initPubSub send this formatted service message 
+    // Register the event to status device - Every time initPubSub send this formatted service message 
     publishBatchedMessages(`
-        {"id":"${deviceId.replace('-','_')}", "t":${Math.floor(Date.now() / 1000)}, "msg": "topic:${formattedTopic}"}
+        {"id":"${deviceId.replace(/-/g,'_')}", "t":${Math.floor(Date.now() / 1000)}, "msg": "topic:${formattedTopic}"}
     `).then(messageId => {
-      log(`@MSG (Published): ${messageId}`)
+      log(`@SERVICE (INIT_PUBSUB): ${messageId}`)
     })
+
   })
   .catch(err => {
     log(`@ERROR (PubSub): Init Service: ${err}`, 1)

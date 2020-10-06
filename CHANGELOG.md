@@ -1,24 +1,45 @@
 # Changelog
+All notable changes to this project will be documented in this file.
 
-<!-- ## Unreleased -->
-<!-- Add new, unreleased items here. -->
-## v1.3.0 [08-07-2020]
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+## [1.4.0] - 2020-08-26
+### Change 
+  - Fix Error: Retry total timeout exceeded before any response was received in PubSub 
+  - Raise maxWaitTime from 10 to 60 
+  - Update the @google-cloud/pubsub to ^2.5.0 
+  - Update the firebase to ^7.19.0 
+  - Update the ioredis to ^4.17.3
+
+## [1.3.0] - 2020-07-08
+### Changed
   - Fix the table.serial-id - to _ pattern 
 
-## v1.2.0 [15-06-2020]
+## [1.2.0] - 2020-06-15
+### Changed
   - Fix the publishBatchedMessages
 
-## v1.1.0 [12-06-2020]
-  - Redis v6.0.5
-  - add undefined check to fireUser and batchPublisher
+## [1.1.0] - 2020-0-12
+### Added
+  - Control to undefined to fireUser and batchPublisher
   - @ERROR messages  
   - deviceId with _ for BigQuery table 
 
-## v1.0.8 [03-06-2020]
-  - log - better logs details into in-cache db 
-  - error - better errors details into in-cache db
-  - snap - remove usless home permission 
-  - data - more details on init device msg 
+### Changed 
+  - Redis v6.0.5
 
-## v1.0.7 [25-05-2020]
-  - Init
+## [1.0.8] - 2020-06-03
+### Added 
+  - logs details into in-cache db 
+  - errors details into in-cache db
+  - more details on init device msg
+
+### Changed 
+  - snap - remove usless home permission  
+
+## [1.0.7] - 2020-05-25
+### Added 
+  - Bootstrap the Project by [@cicciosgamino](https://github.com/CICCIOSGAMINO)

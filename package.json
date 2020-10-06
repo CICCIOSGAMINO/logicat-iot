@@ -1,15 +1,15 @@
 {
   "name": "logicat-iot",
-  "version": "1.2.0",
+  "version": "1.4.0",
   "description": "Logicat srl IoT Gateway based on Ubuntu Core & Node.js! (Beta)",
   "author": "@cicciosgamino",
   "license": "ISC",
   "private": true,
   "bin": "./index.mjs",
   "dependencies": {
-    "@google-cloud/pubsub": "^1.6.0",
-    "firebase": "^7.10.0",
-    "ioredis": "^4.16.3",
+    "@google-cloud/pubsub": "^2.5.0",
+    "firebase": "^7.19.0",
+    "ioredis": "^4.17.3",
     "public-ip": "^4.0.0"
   }
 }

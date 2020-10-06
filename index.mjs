@@ -52,7 +52,7 @@ const publisherClient = new pubsub.v1.PublisherClient({})
 let formattedTopic, batchPublisher
 // maxMessages and maxWaitTime [sec]
 const maxMessages = 1
-const maxWaitTime = 10
+const maxWaitTime = 60
 
 // Device Serial (Unique by OS eg Snap serial, hardware serial ...)
 const deviceId = process.env['DEVICE_SERIAL'] || ''
@@ -311,6 +311,7 @@ const initPubSub = async () => {
     })
 
     // Register the event to status device - Every time initPubSub send this formatted service message 
+    // This is very useful to test the PubSub / Cloud Function service 
     publishBatchedMessages(`
         {"id":"${deviceId.replace(/-/g,'_')}", "t":${Math.floor(Date.now() / 1000)}, "msg": "topic:${formattedTopic}"}
     `).then(messageId => {
@@ -377,7 +378,7 @@ const publishWithRetrySettings = async (msg) => {
  */
 const publishBatchedMessages = (msg) => {
   const dataBuffer = Buffer.from(`${msg}`)
-  return batchPublisher.publish(dataBuffer);
+  return batchPublisher.publish(dataBuffer)
 }
 
 // ----------------------------------------------- Log --------------------------------------------

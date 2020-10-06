@@ -6,13 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.4.0] - 2020-08-26
+## [1.4.0] - 2020-10-06
 ### Change 
   - Fix Error: Retry total timeout exceeded before any response was received in PubSub 
   - Raise maxWaitTime from 10 to 60 
   - Update the @google-cloud/pubsub to ^2.5.0 
-  - Update the firebase to ^7.19.0 
+  - Update the firebase to ^7.22.1
   - Update the ioredis to ^4.17.3
+  - Update Node.js to v14.13.0
 
 ## [1.3.0] - 2020-07-08
 ### Changed

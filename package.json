@@ -8,8 +8,8 @@
   "bin": "./index.mjs",
   "dependencies": {
     "@google-cloud/pubsub": "^2.5.0",
-    "firebase": "^7.19.0",
+    "firebase": "^7.22.1",
     "ioredis": "^4.17.3",
-    "public-ip": "^4.0.0"
+    "public-ip": "^4.0.2"
   }
 }

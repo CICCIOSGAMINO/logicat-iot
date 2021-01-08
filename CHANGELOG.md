@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.1] - 2020-01-07
+### Change
+  - Minor code style fix
+
 ## [1.4.0] - 2020-10-06
 ### Change 
   - Fix Error: Retry total timeout exceeded before any response was received in PubSub 

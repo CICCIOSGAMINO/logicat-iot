@@ -2,7 +2,6 @@
 import { networkInterfaces } from 'os'
 import publicIp from 'public-ip'
 
-// ---------------------------------------------- NETWORK -----------------------------------------
 /**
   * Filter from networkInterfaces the external IPv4 of the Active Interface
   *

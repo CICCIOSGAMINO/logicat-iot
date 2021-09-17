@@ -13,11 +13,12 @@ The OS in charge is Ubuntu Core, starting from 04/2020 with the Ubuntu Core 20-0
 The Github code has a snapcraft.yaml file to build the snap and install on all the Linux architecture you need to run the code. 
 
 ## DEVICE_SERIAL 
-Device serial is the unique snap serial. The snap serial is an unique id based on snapd installation, indeed snapd installation is based native on OS (eg. Ubuntu and other Linux distro) or by installing snap application. Serial device is the only unique identifier of the device on the Firebase cloud device handler. To provision new device you need the Device serial due to register the new device on the Firebase device management cloud service. 
-
-**Snap Serial**  
+Device serial is the unique serial device identification on the Cloud. The serial is bound to the unique id based on snapd installation.To provision new device you need the Device serial due to register the new device on the Firebase device management cloud service. Sometimes when a device is swap with a new device (and new snap serial) the old device snap serial is portable to the new one so there is a difference between the device snap serial and the DEVICE_SERIAL env. **Keep in mind that the DEVICE_SERIAL is the serial that identify the device on the cloud** so check the DEVICE_SERIAL value before use the snap serial. 
 ```bash
-# catch the snap serial from device 
+# see env
+echo $DEVICE_SERIAL
+
+# catch the snap serial
 snap model | grep serial 
 ```
 
@@ -79,5 +80,13 @@ Table eg.
 
 project-id.table-id.serial-id_a40f_4x44_..... 
 
-## TODO 
+## Redis
+The heart of data saving is a Redis instance, to configure / stop / restart the service follow the commands:
+```bash
+# check the service
+snap services
+
+# configure redis
+vim /var/snap/logicat-iot/common
+```
 

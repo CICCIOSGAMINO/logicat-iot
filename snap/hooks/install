@@ -1,0 +1,5 @@
+#! /bin/sh
+
+# if the file does't exist yet, copy it from the
+# read-only place ($SNAP) to a writable one ($SNAP_COMMON)
+[ -e "$SNAP_COMMON/redis.conf" ] || cp -a $SNAP/config/redis/redis.conf $SNAP_COMMON/

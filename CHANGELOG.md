@@ -6,6 +6,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0] - 14-09-2021
+### Change
+  - Ubuntu Core 20
+  - Logicat icon
+  - snapcraft.yaml minor details
+  - redis part of snapcraft.yaml
+
+## Update
+  - @google-cloud/pubsub from 2.5.0 to 2.17.0
+  - firebase from 7.22.1 to 9.0.2
+  - ioredis from 4.17.3 to 4.27.9
+  - public-ip from 4.0.2 to 4.0.4
+
 ## [1.4.1] - 2020-01-07
 ### Change
   - Minor code style fix

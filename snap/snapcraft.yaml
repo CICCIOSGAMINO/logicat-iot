@@ -1,12 +1,14 @@
 name: logicat-iot
 title: Logicatsrl IoT Gateway
-base: core18
+base: core20
 architectures:
   - build-on: amd64
     run-on:  amd64
   - build-on: armhf
     run-on: armhf
-version: '1.4.0'
+  - build-on: arm64
+    run-on: arm64
+version: '2.0.0'
 summary: Logicatsrl IoT gateway, drive the data to the GCP infrasctucture. # 79 char long summary
 description: |
   (Private snap actually in beta version) This is the Logicat srl IoT 
@@ -17,55 +19,60 @@ description: |
   different accounts and security flow. 
 
 type: app
-icon: logicat.png
 license: ISC
+icon: snap/local/assets/snap-logicat.svg
+contact: marco.canali@gmail.com
+issues: https://github.com/CICCIOSGAMINO/logicat-iot/issues
 grade: stable # must be 'stable' to release into candidate/stable channels
 confinement: strict # use 'strict' once you have the right plugs and slots
 
 apps:
   # node logicat-iot service 
   node-service:
-    command: logicat-iot 
+    command: bin/logicat-iot 
     daemon: simple
     restart-condition: always
     restart-delay: 10s
     plugs: [network,network-bind]
   # redis service 
   redis-server:
-    command: redis-server $SNAP/config/redis/redis.conf
+    command: bin/redis-server $SNAP_COMMON/redis.conf
     daemon: simple
     plugs: [network, network-bind]
   redis-benchmark:
-    command: redis-benchmark
+    command: bin/redis-benchmark
     plugs: [network]
   redis-check-aof:
-    command: redis-check-aof
+    command: bin/redis-check-aof
   redis-check-rdb:
-    command: redis-check-rdb
+    command: bin/redis-check-rdb
   redis-cli:
-    command: redis-cli
+    command: bin/redis-cli
     plugs: [network]
   redis-sentinel:
-    command: redis-sentinel
+    command: bin/redis-sentinel
     plugs: [network, network-bind]
 
 parts:
   # node.js logicat-iot code 
   node-service:
     source: .
-    plugin: nodejs
-    nodejs-version: "14.13.0"
-    nodejs-package-manager: "npm"
-    stage-packages:
-      - libatomic1
+    plugin: npm
+    npm-node-version: '14.17.6'
+    # fix the npm root problem by set the npm_config_unsafe_perm
+    build-environment:
+    - npm_config_unsafe_perm: "true"
+
   # building redis 
   redis:
     plugin: make
-    source: https://github.com/antirez/redis.git
-    source-tag: '6.0.5'
+    source: https://github.com/redis/redis.git
+    source-tag: '6.2.5'
     build-packages:
       - build-essential
-    make-install-var: 'PREFIX'
+    make-parameters:
+      - "PREFIX=$SNAPCRAFT_PART_INSTALL"
+
   # set the custom redis configuration 
   redis-customizations:
     plugin: dump

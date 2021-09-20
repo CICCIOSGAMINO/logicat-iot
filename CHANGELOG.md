@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.4.0] - 20-09-2021
+## change
+  - Minor fix for compile the snapcraft.yaml
+  - back to stable line
+
+## [2.1.0] - 20-09-2021
+## Change
+  - devel in snapcraft.yaml
+
 ## [2.0.0] - 14-09-2021
 ### Change
   - Ubuntu Core 20

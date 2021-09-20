@@ -8,7 +8,7 @@ architectures:
     run-on: armhf
   - build-on: arm64
     run-on: arm64
-version: '2.0.0'
+version: '2.4.0'
 summary: Logicatsrl IoT gateway, drive the data to the GCP infrasctucture. # 79 char long summary
 description: |
   (Private snap actually in beta version) This is the Logicat srl IoT 
@@ -20,9 +20,6 @@ description: |
 
 type: app
 license: ISC
-icon: snap/local/assets/snap-logicat.svg
-contact: marco.canali@gmail.com
-issues: https://github.com/CICCIOSGAMINO/logicat-iot/issues
 grade: stable # must be 'stable' to release into candidate/stable channels
 confinement: strict # use 'strict' once you have the right plugs and slots
 

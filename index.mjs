@@ -60,8 +60,7 @@ const DEFAULT_DEVICES_IDS = []
 let devicesIds = DEFAULT_DEVICES_IDS
 
 // -------------------------------------------- Connection ----------------------------------------
-// Cheking the connection status with polling Google DNS, handled with the connectionEmitter! The
-// connectionEmitter is in charge to push data to cloud when triggered by connection and timing!
+// Cheking the connection status with polling Google DNS, handled with the connectionEmitter!
 
 connectionEmitter.on('connected', (data) => {
   // Timing + Connection OK

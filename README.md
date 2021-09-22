@@ -5,12 +5,23 @@ GW Logicat
 ## CHANGELOG
 
 ## Intro 
-Main doc about **logicat-iot** project. This is an iot gateway developeded (v1.0.0 on 20/05/2020) on snap, node.js v13.14.0 where data are gather from the field and sent to GCP ecosystem. Firebase real-time database, Firestore, GCP Pub/Sub pattern, GCP Cloud Functions, BigQuery are involved! Iot device can handle the device data and the field data into separate cloud connections with two different security cahnnels one fot the device status and configuration and the other for client's data. 
+Main doc about **logicat-iot** project. This is an iot gateway developeded (v1.0.0 on 20/05/2020) on snap, node.js v13.14.0 where data are gather from the field and sent to GCP ecosystem. Firebase real-time database, Firestore, GCP Pub/Sub pattern, GCP Cloud Functions, BigQuery are involved! Iot device can handle the device data and the field data into separate cloud connections with two different security cahnnels one fot the device status and configuration and the other for client's data.
+
+Actually (22-09-2021) Running on:
+
+- Snap
+- Node.js v16.9.1
+- Redis v6.2.5
+- Firebase V9 API
+- @google-cloud/pubsub v2.17.0
 
 ## Getting Start 
-The OS in charge is Ubuntu Core, starting from 04/2020 with the Ubuntu Core 20-04 LTS version, power on and configure the Ubuntu Core system with the basic network configurations and login in the right Ubuntu ONE account. 
+The OS in charge is Ubuntu Core, starting from 04/2020 with the Ubuntu Core 20-04 LTS version, power on and configure the Ubuntu Core system with the basic network configurations and login in the right Ubuntu ONE account. The Github code has a snapcraft.yaml file to build the snap and install on all the Linux architecture you need to run the code.
 
-The Github code has a snapcraft.yaml file to build the snap and install on all the Linux architecture you need to run the code. 
+Actually (22-09-2021) Running on:
+
+- base: core20
+- architecture: amd64, arm64, armhf
 
 ## DEVICE_SERIAL 
 Device serial is the unique serial device identification on the Cloud. The serial is bound to the unique id based on snapd installation.To provision new device you need the Device serial due to register the new device on the Firebase device management cloud service. Sometimes when a device is swap with a new device (and new snap serial) the old device snap serial is portable to the new one so there is a difference between the device snap serial and the DEVICE_SERIAL env. **Keep in mind that the DEVICE_SERIAL is the serial that identify the device on the cloud** so check the DEVICE_SERIAL value before use the snap serial. 

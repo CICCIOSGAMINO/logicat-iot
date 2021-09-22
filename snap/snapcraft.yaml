@@ -57,6 +57,7 @@ parts:
     plugin: npm
     npm-node-version: '14.17.6'
     # fix the npm root problem by set the npm_config_unsafe_perm
+    # https://docs.npmjs.com/cli/v7/using-npm/config
     build-environment:
     - npm_config_unsafe_perm: "true"
 

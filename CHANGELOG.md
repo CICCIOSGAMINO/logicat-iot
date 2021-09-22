@@ -6,21 +6,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.7.0] - 22-09-2021
+### Update
+  - Node.js from 14.17.6 to 16.9.1
+
 ## [2.6.0] - 22-09-2021
-## Change
+### Change
   - Firebase v9 API
 
 ## [2.5.0] - 20-09-2021
-## change
+### change
   - version to 2.5.0
 
 ## [2.4.0] - 20-09-2021
-## Change
+### Change
   - Minor fix for compile the snapcraft.yaml
   - back to stable line
 
 ## [2.1.0] - 20-09-2021
-## Change
+### Change
   - devel in snapcraft.yaml
 
 ## [2.0.0] - 14-09-2021

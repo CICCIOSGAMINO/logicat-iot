@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 'use strict'
 // ip, interface handling
 import {
@@ -18,7 +19,7 @@ import {
 } from './validator.mjs'
 
 // ---------------------------------------------- Redis -------------------------------------------
-// Redis in-cache db is responsable to store/retrive iot items and offline/online configurations 
+// Redis in-cache db is responsable to store/retrive iot items and offline/online configurations
 import {
   redisSaveConfiguration,
   redisGetConfiguration,
@@ -29,8 +30,10 @@ import {
   redisAddErr
 } from './redis.mjs'
 
-// Firebase module
-import firebase from 'firebase'
+// https://firebase.google.com/docs/database/web/read-and-write
+import { initializeApp } from 'firebase/app'
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth'
+import { getDatabase, ref, set, onValue, serverTimestamp, onDisconnect } from 'firebase/database'
 
 // Google Cloud PubSub
 import pubsub from '@google-cloud/pubsub'
@@ -40,7 +43,7 @@ const server = new Server()
 
 // Creates a client; cache this for further use
 const pubSubClient = new pubsub.PubSub()
-const publisherClient = new pubsub.v1.PublisherClient({})
+// const publisherClient = new pubsub.v1.PublisherClient({})
 
 // Google Pub/Sub formatted Topic projects/[project_id]/topics/[topic_name]
 // const formattedTopic = publisherClient.topicPath(projectId, topicName);
@@ -50,7 +53,7 @@ const maxMessages = 1
 const maxWaitTime = 60
 
 // Device Serial (Unique by OS eg Snap serial, hardware serial ...)
-const deviceId = process.env['DEVICE_SERIAL'] || ''
+const deviceId = process.env.DEVICE_SERIAL || ''
 
 // Default PORT and INTERVAL
 const DEFAULT_PORT = 8888
@@ -70,7 +73,7 @@ connectionEmitter.on('connected', (data) => {
   initPubSub()
   fireLogin(email, passw)
 
-  // check Firebase Auth and PubSub
+  // if Auth and PubSub active do stuff
   if (fireUser !== undefined && batchPublisher !== undefined) {
   // logged, push items of zero is returned
     redisCountIotItems()
@@ -139,20 +142,20 @@ isInternetAvailable()
 let fireUser
 
 // Load ENV VARS for Firebase
-const fireConf = JSON.parse(process.env['FIREBASE_CONF'])
-const email = process.env['FIREBASE_EMAIL'] || ''
-const passw = process.env['FIREBASE_PSW'] || ''
+const fireConf = JSON.parse(process.env.FIREBASE_CONF)
+const email = process.env.FIREBASE_EMAIL || ''
+const passw = process.env.FIREBASE_PSW || ''
 
 // Firebase Init
-const app = firebase.initializeApp(fireConf)
-const auth = app.auth()
-const db = app.database()
+initializeApp(fireConf)
+const auth = getAuth()
+const db = getDatabase()
 
 // Firebase References
-const fireStatusRef = db.ref('.info/connected')
-const refConfig = db.ref(`/devices/${deviceId}/config`)
-const deviceStatusRef = db.ref(`/devices/${deviceId}/status`)
-const errorRef = db.ref(`/devices/${deviceId}/errors`)
+const fireStatusRef = ref(db, '.info/connected')
+const refConfig = ref(db, `/devices/${deviceId}/config`)
+const deviceStatusRef = ref(db, `/devices/${deviceId}/status`)
+const errorRef = ref(db, `/devices/${deviceId}/errors`)
 
 /**
  * Firebase signin - Try to login to Firebase Cloud Infrastructure
@@ -163,7 +166,7 @@ const fireLogin = (email, passw) => {
   if (fireUser !== undefined) return
 
   // auth in firebase
-  auth.signInWithEmailAndPassword(email, passw)
+  signInWithEmailAndPassword(auth, email, passw)
     .catch(err => {
       // ERROR in LOGIN - CONSOLE
       log(`@ERROR (Firebase_Auth): ${err.message}`, 1)
@@ -171,7 +174,7 @@ const fireLogin = (email, passw) => {
 }
 
 // Listening for Firebase Auth
-auth.onAuthStateChanged(user => {
+onAuthStateChanged(auth, user => {
   if (user) {
     // LOGGED - CONSOLE
     fireUser = user.uid
@@ -186,7 +189,6 @@ auth.onAuthStateChanged(user => {
 
 /**
   * Start the Listening for Firebase Config object needed for start PubSub and TCP
-  *
   */
 const startListenerConfig = () => {
   // create the firebase configChanged event handler
@@ -222,7 +224,7 @@ const startListenerConfig = () => {
           })
       })
       .catch(err => {
-        // catch the JSON.parse or Redis get exceptions 
+        // catch the JSON.parse or Redis get exceptions
         log(`@ERROR (JSON Parser or Redis Exec): ${err}`, 2)
       })
   }
@@ -234,7 +236,7 @@ const startListenerConfig = () => {
     log(`@ERROR (Firebase_Conf): ${error}`, 2)
   }
 
-  refConfig.on('value', configChanged, errorConfig)
+  onValue(refConfig, configChanged, errorConfig)
 }
 
 /**
@@ -243,18 +245,18 @@ const startListenerConfig = () => {
   */
 const startStatusListening = () => {
   // status of firebase connection
-  fireStatusRef.on('value', async snap => {
+  onValue(fireStatusRef, async snap => {
     // snap.val()  true/false
     if (snap.val()) {
       deviceStatusRef.set({
-        t: firebase.database.ServerValue.TIMESTAMP,
+        t: serverTimestamp(),
         iface: activeIface(),
         ip: internalIp4(),
         public: await publicIp4()
       })
     } else {
-      deviceStatusRef.onDisconnect().set({
-        t: firebase.database.ServerValue.TIMESTAMP,
+      onDisconnect(deviceStatusRef).set({
+        t: serverTimestamp(),
         iface: '',
         ip: '',
         public: ''
@@ -307,44 +309,44 @@ const initPubSub = async () => {
  *
  * @param { string } msg - JSON formatted message to Publish
  */
-const publishWithRetrySettings = async (msg) => {
-  const dataBuffer = Buffer.from(msg)
-  const messagesElement = {
-    data: dataBuffer
-  }
-  const messages = [messagesElement]
-  const request = {
-    topic: formattedTopic,
-    messages: messages
-  }
+// const publishWithRetrySettings = async (msg) => {
+//   const dataBuffer = Buffer.from(msg)
+//   const messagesElement = {
+//     data: dataBuffer
+//   }
+//   const messages = [messagesElement]
+//   const request = {
+//     topic: formattedTopic,
+//     messages: messages
+//   }
 
-  // How the publisher handles retryable failures
-  const retrySettings = {
-    retryCodes: [
-      10, // 'ABORTED'
-      1, // 'CANCELLED',
-      4, // 'DEADLINE_EXCEEDED'
-      13, // 'INTERNAL'
-      8, // 'RESOURCE_EXHAUSTED'
-      14, // 'UNAVAILABLE'
-      2 // 'UNKNOWN'
-    ],
-    backoffSettings: {
-      initialRetryDelayMillis: 1000,
-      retryDelayMultiplier: 1.3,
-      maxRetryDelayMillis: 60000,
-      initialRpcTimeoutMillis: 5000,
-      rpcTimeoutMultiplier: 1.0,
-      maxRpcTimeoutMillis: 600000,
-      totalTimeoutMillis: 6000000
-    }
-  }
+//   // How the publisher handles retryable failures
+//   const retrySettings = {
+//     retryCodes: [
+//       10, // 'ABORTED'
+//       1, // 'CANCELLED',
+//       4, // 'DEADLINE_EXCEEDED'
+//       13, // 'INTERNAL'
+//       8, // 'RESOURCE_EXHAUSTED'
+//       14, // 'UNAVAILABLE'
+//       2 // 'UNKNOWN'
+//     ],
+//     backoffSettings: {
+//       initialRetryDelayMillis: 1000,
+//       retryDelayMultiplier: 1.3,
+//       maxRetryDelayMillis: 60000,
+//       initialRpcTimeoutMillis: 5000,
+//       rpcTimeoutMultiplier: 1.0,
+//       maxRpcTimeoutMillis: 600000,
+//       totalTimeoutMillis: 6000000
+//     }
+//   }
 
-  const [response] = await publisherClient.publish(request, {
-    retry: retrySettings
-  })
-  log(`@MSG (Published): ${response.messageIds}`)
-}
+//   const [response] = await publisherClient.publish(request, {
+//     retry: retrySettings
+//   })
+//   log(`@MSG (Published): ${response.messageIds}`)
+// }
 
 /**
  * Publish to PubSub topic in batch mode
@@ -397,8 +399,8 @@ const log = (msg, severity = 0) => {
           console.log(`@ERROR (Redis) Writing Err: ${err}`)
         })
       // write in firebase error
-      errorRef.set({
-        t: firebase.database.ServerValue.TIMESTAMP,
+      set(errorRef, {
+        t: serverTimestamp(),
         error: msg
       })
         .catch(err => {
@@ -409,7 +411,7 @@ const log = (msg, severity = 0) => {
 }
 
 // -------------------------------------------- TCP Server ----------------------------------------
-// TCP Server is in charge to hadnle the local TCP communication with the devices on the field! 
+// TCP Server is in charge to hadnle the local TCP communication with the devices on the field!
 
 /**
   * Init the TCP Server configure the port received by Config obj
@@ -434,7 +436,7 @@ server.on('connection', (socket) => {
     // Test is a RIGHT JSON object, only JSON msg can be handled
     try {
       // needed because can't use double quote in ABB Robot sw
-      const rightApexChunk = chunk.toString().replace(/'/g, "\"")
+      const rightApexChunk = chunk.toString().replace(/'/g, '"')
       const data = JSON.parse(rightApexChunk, (key, value) => {
         // checking the t field, must contain valid timestamp
         if (key === 't' && value === '') {
@@ -456,6 +458,7 @@ server.on('connection', (socket) => {
             })
             .catch(err => {
               // error on redis add item
+              log(`@ERROR(ID) ${err}`)
               socket.write('0')
             })
         } else {

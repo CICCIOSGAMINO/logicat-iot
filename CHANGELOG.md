@@ -10,9 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Update
   - Node.js from 14.17.6 to 16.9.1
 
-## [2.6.0] - 22-09-2021
+## [2.6.1] - 22-09-2021
 ### Change
   - Firebase v9 API
+  - minor fix
 
 ## [2.5.0] - 20-09-2021
 ### change

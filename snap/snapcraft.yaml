@@ -9,6 +9,9 @@ architectures:
   - build-on: arm64
     run-on: arm64
 version: '2.6.0'
+contact: marco.canali@gmail.com
+issues: https://github.com/CICCIOSGAMINO/logicat-iot/issues
+source-code: https://github.com/CICCIOSGAMINO/logicat-iot
 summary: Logicatsrl IoT gateway, drive the data to the GCP infrasctucture. # 79 char long summary
 description: |
   (Private snap actually in beta version) This is the Logicat srl IoT 
@@ -26,7 +29,7 @@ confinement: strict # use 'strict' once you have the right plugs and slots
 apps:
   # node logicat-iot service 
   node-service:
-    command: bin/logicat-iot 
+    command: bin/logicat-iot
     daemon: simple
     restart-condition: always
     restart-delay: 10s
@@ -57,10 +60,9 @@ parts:
     plugin: npm
     npm-node-version: '14.17.6'
     # fix the npm root problem by set the npm_config_unsafe_perm
-    # https://docs.npmjs.com/cli/v7/using-npm/config
     build-environment:
-    - npm_config_unsafe_perm: "true"
-
+      - npm_config_unsafe_perm: "true"
+      
   # building redis 
   redis:
     plugin: make

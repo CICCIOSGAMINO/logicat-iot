@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [2.7.0] - 22-09-2021
+## [node16 branch] - 22-09-2021
 ### Update
   - Node.js from 14.17.6 to 16.9.1
 

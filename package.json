@@ -2,8 +2,10 @@
   "name": "logicat-iot",
   "version": "2.6.0",
   "description": "Logicat srl IoT Gateway based on Ubuntu Core & Node.js! (Beta)",
+  "main": "index.mjs",
+  "repository": "https://github.com/CICCIOSGAMINO/logicat-iot.git",
   "author": "@cicciosgamino",
-  "license": "GPLV3",
+  "license": "ISC",
   "private": true,
   "bin": "./index.mjs",
   "dependencies": {

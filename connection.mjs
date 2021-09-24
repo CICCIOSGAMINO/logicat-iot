@@ -1,4 +1,4 @@
-// Utility to check the Internet connection throught DNS polling 
+// Utility to check the Internet connection throught DNS polling
 import { lookupService } from 'dns'
 import { EventEmitter } from 'events'
 
@@ -45,7 +45,7 @@ export const isInternetAvailable = () => {
       (err, hostname, service) => {
         if (err) {
           // NO Internet Available
-          reject('Internet NOT available')
+          reject(new Error('Internet NOT available'))
         } else {
           // Internet Available
           resolve('Internet available')

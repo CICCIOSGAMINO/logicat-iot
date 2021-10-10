@@ -6,9 +6,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [node16 branch] - 22-09-2021
+## [node16 branch] - xx-2021
 ### Update
   - Node.js from 14.17.6 to 16.9.1
+
+## [2.7.0] - 10-10-2021
+### Change
+  - fix the deviceStatusRef.set old function
+  - minor fix
+
+## [2.6.2] - 24-09-2021
+### Removed
+  - architecture armhf
 
 ## [2.6.1] - 22-09-2021
 ### Change

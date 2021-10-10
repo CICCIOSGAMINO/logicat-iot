@@ -248,7 +248,7 @@ const startStatusListening = () => {
   onValue(fireStatusRef, async snap => {
     // snap.val()  true/false
     if (snap.val()) {
-      deviceStatusRef.set({
+      set(deviceStatusRef, {
         t: serverTimestamp(),
         iface: activeIface(),
         ip: internalIp4(),

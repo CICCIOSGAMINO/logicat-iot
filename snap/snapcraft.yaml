@@ -4,11 +4,9 @@ base: core20
 architectures:
   - build-on: amd64
     run-on:  amd64
-  - build-on: armhf
-    run-on: armhf
   - build-on: arm64
     run-on: arm64
-version: '2.6.1'
+version: '2.7.0'
 summary: Logicatsrl IoT gateway, drive the data to the GCP infrasctucture. # 79 char long summary
 description: |
   (Private snap actually in beta version) This is the Logicat srl IoT 
